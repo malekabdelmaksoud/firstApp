@@ -1,4 +1,5 @@
-﻿using firstApp.Models;
+using firstApp.data;
+using firstApp.Models;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -6,45 +7,57 @@ namespace firstApp.Services
 {
     public class ProductService
     {
-        private static List<Product> Products = new();
+        private readonly Mvcdbcontext _context;
+
+        public ProductService(Mvcdbcontext context)
+        {
+            _context = context;
+        }
 
         // READ
         public List<Product> GetAll()
         {
-            return Products;
+           
+            return _context.Products .ToList();
         }
+
 
         public Product? GetById(int id)
         {
-            return Products.FirstOrDefault(p => p.Id == id);
+            return _context.Products.FirstOrDefault(p => p.Id == id );
         }
 
         // CREATE
         public void Add(Product product)
         {
-            product.Id = Products.Count + 1;
-            Products.Add(product);
+         
+            _context.Products.Add(product);
+            _context.SaveChanges();
         }
 
         // UPDATE
         public void Update(Product product)
         {
-            var p = GetById(product.Id);
-            if (p != null)
+            var e = GetById(product.Id);
+            if (e != null)
             {
-                p.Name = product.Name;
-                p.Price = product.Price;
-                p.CategoryId = product.CategoryId;
+                e.Name = product.Name;
+                e.Price = product.Price;
+                e.CategoryId = product.CategoryId;
+                _context.Products.Update(e);
+                _context.SaveChanges();
             }
         }
 
         // DELETE
-        public void Delete()
+        public void Delete(int id)
         {
-            int id = 1; // Placeholder for the actual id to delete
-            var p = GetById(id);
-            if (p != null)
-                Products.Remove(p);
+            var product = GetById(id);
+            if (product != null)
+            {
+                _context.Products.Remove(product);
+                _context.SaveChanges();
+            }
         }
     }
-}
+ }
